@@ -12,10 +12,22 @@
                 app:showAsAction="withText"/>
     </group>
 
+    <group android:id="@+id/add_gallery">
+        <item
+            android:id="@+id/add_exist_photo"
+            android:title="add exist photo"
+            app:showAsAction="withText"/>
+
+        <item
+            android:id="@+id/add_token_photo"
+            android:title="add token photo"
+            app:showAsAction="withText"/>
+    </group>
+
     <group>
         <item
                 android:id="@+id/settings"
-                android:title="Settings..."
+                android:title="Settings"
                 app:showAsAction="withText"/>
     </group>
 </menu>

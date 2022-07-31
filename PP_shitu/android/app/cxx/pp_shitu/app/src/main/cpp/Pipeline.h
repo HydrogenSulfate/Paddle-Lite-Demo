@@ -15,7 +15,8 @@
 #pragma once
 
 #include "ObjectDetector.h" // NOLINT
-#include "Recognition.h"    // NOLINT
+#include "FeatureExtractor.h"    // NOLINT
+#include "VectorSearch.h"
 #include "Utils.h"
 #include "paddle_api.h"                // NOLINT
 #include <EGL/egl.h>                   // NOLINT
@@ -28,36 +29,51 @@
 #include <string>                      // NOLINT
 #include <vector>                      // NOLINT
 
-class PipeLine {
+class PipeLine
+{
 public: // NOLINT
-  explicit PipeLine(std::string det_model_path, std::string rec_model_path,
-                    std::string label_path, std::vector<int> det_input_shape,
-                    std::vector<int> rec_input_shape, int cpu_num_threads,
-                    int warm_up, int repeats, int topk, std::string cpu_power);
+    explicit PipeLine(std::string det_model_path, std::string rec_model_path,
+                      std::string label_path, std::vector<int> det_input_shape,
+                      std::vector<int> rec_input_shape, int cpu_num_threads,
+                      int warm_up, int repeats, int topk, std::string cpu_power);
 
-  std::string run(std::vector<cv::Mat> &batch_imgs,      // NOLINT
-                  std::vector<ObjectResult> &det_result, // NOLINT
-                  int batch_size);
+    std::string run(std::vector <cv::Mat> &batch_imgs,      // NOLINT
+                    std::vector <ObjectResult> &det_result, // NOLINT
+                    int batch_size);
 
 private: // NOLINT
-  std::string det_model_path_;
-  std::string rec_model_path_;
-  std::string label_path_;
-  std::vector<int> det_input_shape_;
-  std::vector<int> rec_input_shape_;
-  int cpu_num_threads_;
-  int warm_up_;
-  int repeats_;
-  std::string cpu_pow_;
-  std::shared_ptr<ObjectDetector> det_;
-  std::shared_ptr<Recognition> rec_;
-  int max_det_num_{3};
-  float rec_nms_thresold_{0.05f};
-  std::vector<double> times_{0, 0, 0, 0, 0, 0, 0};
+    std::string det_model_path_;
+    std::string rec_model_path_;
+    std::string label_path_;
+    std::vector<int> det_input_shape_;
+    std::vector<int> rec_input_shape_;
+    int cpu_num_threads_;
+    int warm_up_;
+    int repeats_;
+    std::string cpu_pow_;
+    // 实例化检测类
+    std::shared_ptr <ObjectDetector> det_;
+    // 实例化特征提取(rec)类
+    std::shared_ptr <FeatureExtract> rec_;
+    // 实例化特征检索类
+    std::shared_ptr <VectorSearch> searcher_;
+    int max_det_num_{3};
+    float rec_nms_thresold_ = 0.05f;
+    std::vector<float> feature;
+    std::vector<float> features;
+    std::vector<int> indices;
+    std::vector<double> times_{0, 0, 0, 0, 0, 0, 0};
 
-  void DetPredictImage(const std::vector<cv::Mat> batch_imgs,
-                       std::vector<ObjectResult> *im_result,
-                       const int batch_size_det,
-                       std::shared_ptr<ObjectDetector> det,
-                       const int max_det_num = 3);
+    void DetPredictImage(const std::vector <cv::Mat> batch_imgs,
+                         std::vector <ObjectResult> *im_result,
+                         const int batch_size_det,
+                         std::shared_ptr <ObjectDetector> det,
+                         const int max_det_num = 3);
+
+//  bool AddToGallery(
+//          const std::vector<cv::Mat> batch_imgs,
+//          );
+    void NMSBoxes(const std::vector <ObjectResult> det_result,
+                  const float score_threshold, const float nms_threshold,
+                  std::vector<int> &indices);
 };

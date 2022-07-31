@@ -19,7 +19,7 @@ message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -ffast-math -Ofast -Os -DNDEBUG -fno-exceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables"
+    "${CMAKE_CXX_FLAGS} -ffast-math -Ofast -Os -DNDEBUG -fexceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables"
 )
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -fdata-sections -ffunction-sections"
@@ -33,7 +33,7 @@ add_library(
   # Sets the library as a shared library.
   SHARED
   # Provides a relative path to your source file(s).
-  Native.cc Pipeline.cc Utils.cc ObjectDetector.cc Recognition.cc)
+  Native.cc Pipeline.cc Utils.cc ObjectDetector.cc FeatureExtractor.cc VectorSearch.cc)
 
 find_library(
   # Sets the name of the path variable.

@@ -340,8 +340,32 @@ public class MainActivity extends AppCompatActivity {
                     onSettingsClicked();
                 }
                 break;
+            case R.id.add_exist_photo:
+                if (requestAllPermissions()) {
+                    // 从本地选择一张图片放入gallery中
+                    AddTokenToGallery();
+                }
+                break;
+            case R.id.add_token_photo:
+                if (requestAllPermissions()) {
+                    // 从本地选择一张图片放入gallery中
+                    AddExistToGallery();
+                }
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void AddExistToGallery() {
+        // 增加现有图片到库中---主逻辑代码
+        Toast.makeText(MainActivity.this, "AddExistToGallery", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void AddTokenToGallery() {
+        // 直接拍一张图片到库中---主逻辑代码
+        Toast.makeText(MainActivity.this, "AddTokenToGallery", Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
@@ -367,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, null);
+        Intent intent = new Intent(Intent.ACTION_PICK, null); // 选择数据
         intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
         startActivityForResult(intent, OPEN_GALLERY_REQUEST_CODE);
     }
