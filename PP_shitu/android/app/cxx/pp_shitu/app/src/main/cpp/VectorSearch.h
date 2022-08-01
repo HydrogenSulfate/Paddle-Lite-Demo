@@ -20,10 +20,12 @@
 #endif
 
 #include <cstring>
-#include "faiss/Index.h"
-#include "faiss/index_io.h"
-#include "VectorSearch.h"
+#include "include/faiss/Index.h"
+#include "include/faiss/index_io.h"
+//#include "VectorSearch.h"
 #include <map>
+#include <vector>
+
 
 struct SearchResult
 {
