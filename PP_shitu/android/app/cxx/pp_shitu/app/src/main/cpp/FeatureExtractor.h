@@ -27,6 +27,7 @@
 #include <sys/time.h>         // NOLINT
 #include <vector>             // NOLINT
 #include "numeric"
+
 using namespace paddle::lite_api; // NOLINT
 using namespace std;              // NOLINT
 
@@ -41,47 +42,26 @@ public: // NOLINT
         config.set_power_mode(ParsePowerMode(cpu_power));
         config.set_model_from_file(model_path);
         this->predictor_ = CreatePaddlePredictor<MobileConfig>(config);
-//        LoadLabel(label_path);
-//        warm_up_ = warm_up;
-//        repeats_ = repeats;
-//        size_ = input_shape[2];
     }
-
-//    void LoadLabel(std::string path)
-//    {
-//        std::ifstream file;
-//        std::vector <std::string> label_list;
-//        file.open(path);
-//        while (file)
-//        {
-//            std::string line;
-//            std::getline(file, line);
-//            std::string::size_type pos = line.find(" ");
-//            if (pos != std::string::npos)
-//            {
-//                line = line.substr(pos);
-//            }
-//            this->label_list_.push_back(line);
-//        }
-//        file.clear();
-//        file.close();
-//    }
 
     void RunRecModel(const cv::Mat &img, double &cost_time, std::vector<float> &feature); // NOLINT
     void FeatureNorm(std::vector<float> &feature);
 
-//    std::vector <RectResult> PostProcess(const float *output_data, int output_size, cv::Mat &output_image); // NOLINT
+    void ResizeImage(const cv::Mat &img, cv::Mat &resize_img);
+
+    void Permute(const cv::Mat *im, float *data);
+
+    void NormalizeImage(cv::Mat *im, const std::vector<float> &mean, const std::vector<float> &std, float scale);
+
 
 private: // NOLINT
     std::shared_ptr <PaddlePredictor> predictor_;
-//    std::vector <std::string> label_list_;
     std::vector<float> mean_ = {0.485f, 0.456f, 0.406f};
     std::vector<float> std_ = {0.229f, 0.224f, 0.225f};
-    double scale_ = 1 / 255.0; // 1/255.0
+    double scale_ = 0.00392157; // 1/255.0
     int size = 224;
 //    int topk_ = 5;
 //    int warm_up_;
 //    int repeats_;
 
-    cv::Mat ResizeImage(const cv::Mat img);
 };

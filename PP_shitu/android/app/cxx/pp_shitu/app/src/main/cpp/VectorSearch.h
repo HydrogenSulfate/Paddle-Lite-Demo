@@ -22,7 +22,6 @@
 #include <cstring>
 #include "include/faiss/Index.h"
 #include "include/faiss/index_io.h"
-//#include "VectorSearch.h"
 #include <map>
 #include <vector>
 
@@ -38,19 +37,16 @@ class VectorSearch
 {
 public:
     explicit VectorSearch(
-            const std::string &index_dir,
+            const std::string &label_path,
+            const std::string &index_path,
             const int &return_k = 5,
             const float &score_thres = 0.5)
     {
 //        // IndexProcess
-//        this->index_dir = "assets/index";
-        this->index_dir = index_dir;
+        this->label_path = label_path;
+        this->index_path = index_path;
         this->return_k = return_k;
         this->score_thres = score_thres;
-//        this->index_dir = config["IndexProcess"]["index_dir"].as<std::string>();
-//        this->return_k = config["IndexProcess"]["return_k"].as<int>();
-//        this->score_thres = config["IndexProcess"]["score_thres"].as<float>();
-//        this->max_query_number = config["Global"]["max_det_results"].as<int>() + 1;
 
         LoadIdMap();
         LoadIndexFile();
@@ -61,17 +57,36 @@ public:
 
     void LoadIdMap();
 
+    bool LoadFromSaveFileName(const std::string &load_file_name);
+
     void LoadIndexFile();
+
+    int AddFeature(float *feature, const std::string &label = "");
 
     const SearchResult &Search(float *feature, int query_number);
 
-    const std::string &GetLabel(faiss::Index::idx_t ind);
+    const int GetIndexLength()
+    {
+        return this->index->ntotal;
+    }
 
-    const float &GetThreshold()
-    { return this->score_thres; }
+    void SaveIndex(const std::string &save_path = "");
+
+    std::string GetIndexPath()
+    { return this->index_path; }
+
+    std::string GetLabelPath()
+    { return this->label_path; }
+
+    std::string GetLabel(faiss::Index::idx_t ind);
+
+    void ClearFeature();
+
+    const float &GetThreshold() const;
 
 private:
-    std::string index_dir;
+    std::string index_path;
+    std::string label_path;
     int return_k = 5;
     float score_thres = 0.5;
 
@@ -79,6 +94,6 @@ private:
     faiss::Index *index;
     int max_query_number = 6;
     std::vector<float> D;
-    std::vector <faiss::Index::idx_t> I;
+    std::vector<faiss::Index::idx_t> I;
     SearchResult sr;
 };

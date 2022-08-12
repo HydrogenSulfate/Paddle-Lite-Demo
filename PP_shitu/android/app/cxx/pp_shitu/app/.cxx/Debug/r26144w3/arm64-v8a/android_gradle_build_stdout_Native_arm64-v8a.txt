@@ -1,0 +1,28 @@
+ninja: Entering directory `D:\python_proj\Paddle-Lite-Demo\PP_shitu\android\app\cxx\pp_shitu\app\.cxx\Debug\r26144w3\arm64-v8a'
+[1/4] Building CXX object CMakeFiles/Native.dir/Native.cc.o
+FAILED: CMakeFiles/Native.dir/Native.cc.o 
+C:\Users\hesensen\AppData\Local\Android\Sdk\ndk\21.4.7075529\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe --target=aarch64-none-linux-android23 --gcc-toolchain=C:/Users/hesensen/AppData/Local/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=C:/Users/hesensen/AppData/Local/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -DNative_EXPORTS -ID:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/../../../PaddleLite/cxx/include -isystem D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/OpenCV/sdk/native/jni/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++11 -ffast-math -Ofast -Os -DNDEBUG -fexceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables -fvisibility=hidden -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -O0 -fno-limit-debug-info  -fPIC -MD -MT CMakeFiles/Native.dir/Native.cc.o -MF CMakeFiles\Native.dir\Native.cc.o.d -o CMakeFiles/Native.dir/Native.cc.o -c D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/Native.cc
+In file included from D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/Native.cc:16:
+In file included from D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/Pipeline.h:19:
+D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/VectorSearch.h:24:10: fatal error: 'faiss/index_io.h' file not found
+#include "faiss/index_io.h"
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+[2/4] Building CXX object CMakeFiles/Native.dir/Pipeline.cc.o
+FAILED: CMakeFiles/Native.dir/Pipeline.cc.o 
+C:\Users\hesensen\AppData\Local\Android\Sdk\ndk\21.4.7075529\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe --target=aarch64-none-linux-android23 --gcc-toolchain=C:/Users/hesensen/AppData/Local/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=C:/Users/hesensen/AppData/Local/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -DNative_EXPORTS -ID:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/../../../PaddleLite/cxx/include -isystem D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/OpenCV/sdk/native/jni/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++11 -ffast-math -Ofast -Os -DNDEBUG -fexceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables -fvisibility=hidden -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -O0 -fno-limit-debug-info  -fPIC -MD -MT CMakeFiles/Native.dir/Pipeline.cc.o -MF CMakeFiles\Native.dir\Pipeline.cc.o.d -o CMakeFiles/Native.dir/Pipeline.cc.o -c D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/Pipeline.cc
+In file included from D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/Pipeline.cc:15:
+In file included from D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/Pipeline.h:19:
+D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/VectorSearch.h:24:10: fatal error: 'faiss/index_io.h' file not found
+#include "faiss/index_io.h"
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+[3/4] Building CXX object CMakeFiles/Native.dir/VectorSearch.cc.o
+FAILED: CMakeFiles/Native.dir/VectorSearch.cc.o 
+C:\Users\hesensen\AppData\Local\Android\Sdk\ndk\21.4.7075529\toolchains\llvm\prebuilt\windows-x86_64\bin\clang++.exe --target=aarch64-none-linux-android23 --gcc-toolchain=C:/Users/hesensen/AppData/Local/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=C:/Users/hesensen/AppData/Local/Android/Sdk/ndk/21.4.7075529/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -DNative_EXPORTS -ID:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/../../../PaddleLite/cxx/include -isystem D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/OpenCV/sdk/native/jni/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -std=c++11 -ffast-math -Ofast -Os -DNDEBUG -fexceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables -fvisibility=hidden -fvisibility-inlines-hidden -fdata-sections -ffunction-sections -O0 -fno-limit-debug-info  -fPIC -MD -MT CMakeFiles/Native.dir/VectorSearch.cc.o -MF CMakeFiles\Native.dir\VectorSearch.cc.o.d -o CMakeFiles/Native.dir/VectorSearch.cc.o -c D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/VectorSearch.cc
+In file included from D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/VectorSearch.cc:1:
+D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/VectorSearch.h:24:10: fatal error: 'faiss/index_io.h' file not found
+#include "faiss/index_io.h"
+         ^~~~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.

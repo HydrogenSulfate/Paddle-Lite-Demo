@@ -18,37 +18,25 @@
 void FeatureExtract::RunRecModel(const cv::Mat &img, double &cost_time, std::vector<float> &feature)
 {
     // Read img
-    cv::Mat resize_image = ResizeImage(img);
     cv::Mat img_fp;
-    resize_image.convertTo(img_fp, CV_32FC3, scale_);
-    cv::Size shape = img_fp.size();
-    int h = shape.height;
-    int w = shape.width;
-    LOGD("%d %d", h, w); // 224 224
+    ResizeImage(img, img_fp);
+    NormalizeImage(&img_fp, this->mean_, this->std_, this->scale_);
+    std::vector<float> input(1 * 3 * img_fp.rows * img_fp.cols, 0.0f);
+    Permute(&img_fp, input.data());
     auto pre_cost0 = GetCurrentUS();
 
     // Prepare input data from image
-    std::unique_ptr <Tensor> input_tensor(std::move(this->predictor_->GetInput(0)));
-    input_tensor->Resize({1, 3, img_fp.rows, img_fp.cols});
+    std::unique_ptr<Tensor> input_tensor(std::move(this->predictor_->GetInput(0)));
+    input_tensor->Resize({1, 3, this->size, this->size});
     auto *data0 = input_tensor->mutable_data<float>();
 
-    // const float *dimg = reinterpret_cast<const float *>(img_fp.data);
-    // NeonMeanScale(dimg, data0, img_fp.rows * img_fp.cols);
-    const float *dimg = reinterpret_cast<const float *>(img_fp.data);
-    neon_mean_scale(dimg, data0, img_fp.rows * img_fp.cols, mean_.data(), std_.data());
-    auto pre_cost1 = GetCurrentUS();
-
-    // Run predictor
-//    for (int i = 0; i < warm_up_; i++)
-//        this->predictor_->Run();
-
-    auto infer_cost0 = GetCurrentUS();
-//    for (int i = 0; i < repeats_; i++)
-
+    for (int i = 0; i < input.size(); ++i)
+    {
+        data0[i] = input[i];
+    }
     auto start = std::chrono::system_clock::now();
     // Run predictor
     this->predictor_->Run();
-    auto infer_cost1 = GetCurrentUS();
 
     // Get output and post process
     std::unique_ptr<const Tensor> output_tensor(std::move(this->predictor_->GetOutput(0)));
@@ -58,7 +46,6 @@ void FeatureExtract::RunRecModel(const cv::Mat &img, double &cost_time, std::vec
     cost_time = double(duration.count()) *
                 std::chrono::microseconds::period::num /
                 std::chrono::microseconds::period::den;
-//    auto *output_data = output_tensor->data<float>();
 
     // do postprocess
     int output_size = 1;
@@ -69,32 +56,55 @@ void FeatureExtract::RunRecModel(const cv::Mat &img, double &cost_time, std::vec
     feature.resize(output_size);
     output_tensor->CopyToCpu(feature.data());
 
-//    auto post_cost0 = GetCurrentUS();
-//    cv::Mat output_image;
-//    auto results = PostProcess(output_data, output_size, output_image);
-//    auto post_cost1 = GetCurrentUS();
-
     // postprocess include sqrt or binarize.
     FeatureNorm(feature);
-
-//    cost_time = double(duration.count()) * std::chrono::microseconds::period::num / std::chrono::microseconds::period::den;
-    return;
-//    return results;
+//    for (int i = 0; i < 10; ++i)
+//    {
+//        LOGD("feature[%d]: %.2f", i, feature[i]);
+//    }
 }
 
 void FeatureExtract::FeatureNorm(std::vector<float> &feature)
 {
     float feature_sqrt = std::sqrt(std::inner_product(feature.begin(), feature.end(), feature.begin(), 0.0f));
     for (int i = 0; i < feature.size(); ++i)
+    {
         feature[i] /= feature_sqrt;
+    }
+}
+
+void FeatureExtract::Permute(const cv::Mat *im, float *data)
+{
+    int rh = im->rows;
+    int rw = im->cols;
+    int rc = im->channels();
+    for (int i = 0; i < rc; ++i)
+    {
+        cv::extractChannel(*im, cv::Mat(rh, rw, CV_32FC1, data + i * rh * rw), i);
+    }
+}
+
+void FeatureExtract::ResizeImage(const cv::Mat &img, cv::Mat &resize_img)
+{
+    cv::resize(img, resize_img, cv::Size(this->size, this->size));
 }
 
 
-cv::Mat FeatureExtract::ResizeImage(const cv::Mat img)
+void FeatureExtract::NormalizeImage(cv::Mat *im, const std::vector<float> &mean, const std::vector<float> &std, float scale)
 {
-    cv::Mat resize_img;
-    cv::resize(img, resize_img, cv::Size(this->size, this->size));
-    return resize_img;
+    (*im).convertTo(*im, CV_32FC3, scale);
+    for (int h = 0; h < im->rows; h++)
+    {
+        for (int w = 0; w < im->cols; w++)
+        {
+            im->at<cv::Vec3f>(h, w)[0] =
+                    (im->at<cv::Vec3f>(h, w)[0] - mean[0]) / std[0];
+            im->at<cv::Vec3f>(h, w)[1] =
+                    (im->at<cv::Vec3f>(h, w)[1] - mean[1]) / std[1];
+            im->at<cv::Vec3f>(h, w)[2] =
+                    (im->at<cv::Vec3f>(h, w)[2] - mean[2]) / std[2];
+        }
+    }
 }
 
 //std::vector <RectResult> Recognition::PostProcess(const float *output_data,

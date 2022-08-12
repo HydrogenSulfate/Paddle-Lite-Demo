@@ -19,8 +19,10 @@ find_package(OpenCV REQUIRED)
 message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-set(PaddleLite_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../PaddleLite")
+#set(PaddleLite_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../PaddleLite")
+
 include_directories(D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/include/faiss)
+set(target faiss)
 
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -ffast-math -Ofast -Os -DNDEBUG -fexceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables"
@@ -89,12 +91,13 @@ target_link_libraries(
   GLESv2
   EGL
   ${log-lib}
+  faiss
   )
 
-target_link_libraries(
-  faiss
-  INTERFACE
-  D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/jniLibs/arm64-v8a/libfaiss.a
-  ${log-lib}
-  )
+#target_link_libraries(
+#  faiss
+#  INTERFACE
+#  D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/jniLibs/arm64-v8a/libfaiss.a
+#  ${log-lib}
+#  )
 

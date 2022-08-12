@@ -1,33 +1,72 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
-    <group android:id="@+id/pick_image">
-        <item
-                android:id="@+id/open_gallery"
-                android:title="Open Gallery"
-                app:showAsAction="withText"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--    <group android:id="@+id/pick_image">-->
+    <!--        <item-->
+    <!--                android:id="@+id/open_gallery"-->
+    <!--                android:title="Open Query photo"-->
+    <!--                app:showAsAction="withText"/>-->
 
-        <item
-                android:id="@+id/take_photo"
-                android:title="Take Photo"
-                app:showAsAction="withText"/>
-    </group>
+    <!--        <item-->
+    <!--                android:id="@+id/take_photo"-->
+    <!--                android:title="Take Query Photo"-->
+    <!--                app:showAsAction="withText"/>-->
+    <!--    </group>-->
 
-    <group android:id="@+id/add_gallery">
-        <item
-            android:id="@+id/add_exist_photo"
-            android:title="add exist photo"
-            app:showAsAction="withText"/>
+    <!--    <group android:id="@+id/add_gallery">-->
+    <!--        <item-->
+    <!--            android:id="@+id/add_exist_photo"-->
+    <!--            android:title="Add Gallery Photo"-->
+    <!--            app:showAsAction="withText"/>-->
 
-        <item
-            android:id="@+id/add_token_photo"
-            android:title="add token photo"
-            app:showAsAction="withText"/>
-    </group>
-
+    <!--        <item-->
+    <!--            android:id="@+id/add_token_photo"-->
+    <!--            android:title="Take Gallery Photo"-->
+    <!--            app:showAsAction="withText"/>-->
+    <!--    </group>-->
+    <!--    <group>-->
+    <!--        <item-->
+    <!--            android:id="@+id/clear_gallery"-->
+    <!--            android:title="Clear Gallery"-->
+    <!--            app:showAsAction="withText">-->
+    <!--        </item>-->
+    <!--    </group>-->
+    <!--    <group>-->
+    <!--        <item-->
+    <!--            android:id="@+id/save_index"-->
+    <!--            android:title="Save Index"-->
+    <!--            app:showAsAction="withText">-->
+    <!--        </item>-->
+    <!--        <item-->
+    <!--            android:id="@+id/load_index"-->
+    <!--            android:title="Load Index"-->
+    <!--            app:showAsAction="withText">-->
+    <!--        </item>-->
+    <!--    </group>-->
     <group>
         <item
-                android:id="@+id/settings"
-                android:title="Settings"
-                app:showAsAction="withText"/>
+            android:id="@+id/take_query"
+            android:icon="@mipmap/take_q"
+            android:title="query"
+            app:showAsAction="always"/>
+        <item
+            android:id="@+id/add_query"
+            android:icon="@mipmap/search_icon"
+            android:title="query"
+            app:showAsAction="always"/>
+        <item
+            android:id="@+id/take_gallery"
+            android:title="add"
+            android:icon="@mipmap/take_g"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/add_gallery"
+            android:title="add"
+            android:icon="@mipmap/add_icon"
+            app:showAsAction="always" />
+        <item
+            android:id="@+id/settings"
+            android:icon="@mipmap/settings_icon"
+            android:title="Settings"
+            app:showAsAction="" />
     </group>
 </menu>

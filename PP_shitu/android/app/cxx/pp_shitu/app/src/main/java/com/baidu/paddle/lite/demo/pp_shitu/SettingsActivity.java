@@ -18,6 +18,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     CheckBoxPreference cbEnableCustomSettings = null;
     EditTextPreference etModelPath = null;
     EditTextPreference etLabelPath = null;
+    EditTextPreference etIndexDir = null;
     EditTextPreference etImagePath = null;
     ListPreference lpCPUThreadNum = null;
     ListPreference lpCPUPowerMode = null;
@@ -27,6 +28,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
     List<String> preInstalledModelPaths = null;
     List<String> preInstalledLabelPaths = null;
+    List<String> preInstalledIndexDirs = null;
     List<String> preInstalledImagePaths = null;
     List<String> preInstalledCPUThreadNums = null;
     List<String> preInstalledCPUPowerModes = null;
@@ -38,14 +40,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
+//        addPreferencesFromResource(R.menu.menu_action_gallery);
+//        addPreferencesFromResource(R.menu.menu_action_query);
         ActionBar supportActionBar = getSupportActionBar();
         if (supportActionBar != null) {
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+
         // Initialized pre-installed models
         preInstalledModelPaths = new ArrayList<String>();
         preInstalledLabelPaths = new ArrayList<String>();
+        preInstalledIndexDirs = new ArrayList<String>();
         preInstalledImagePaths = new ArrayList<String>();
         preInstalledDetInputShapes = new ArrayList<String>();
         preInstalledRecInputShapes = new ArrayList<String>();
@@ -56,6 +62,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         // Add mobilenet_v1_for_cpu
         preInstalledModelPaths.add(getString(R.string.MODEL_PATH_DEFAULT));
         preInstalledLabelPaths.add(getString(R.string.LABEL_PATH_DEFAULT));
+        preInstalledIndexDirs.add(getString(R.string.INDEX_DIR_DEFAULT));
         preInstalledImagePaths.add(getString(R.string.IMAGE_PATH_DEFAULT));
         preInstalledCPUThreadNums.add(getString(R.string.CPU_THREAD_NUM_DEFAULT));
         preInstalledCPUPowerModes.add(getString(R.string.CPU_POWER_MODE_DEFAULT));
@@ -82,6 +89,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         etModelPath = (EditTextPreference) findPreference(getString(R.string.MODEL_PATH_KEY));
         etModelPath.setTitle("Model Path (SDCard: " + Utils.getSDCardDirectory() + ")");
         etLabelPath = (EditTextPreference) findPreference(getString(R.string.LABEL_PATH_KEY));
+        etIndexDir = (EditTextPreference) findPreference(getString(R.string.INDEX_PATH_KEY));
         etImagePath = (EditTextPreference) findPreference(getString(R.string.IMAGE_PATH_KEY));
         lpInputTopK =
                 (ListPreference) findPreference(getString(R.string.INPUT_TOPK_KEY));
@@ -101,6 +109,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString(getString(R.string.MODEL_PATH_KEY), preInstalledModelPaths.get(modelIdx));
                 editor.putString(getString(R.string.LABEL_PATH_KEY), preInstalledLabelPaths.get(modelIdx));
+                editor.putString(getString(R.string.INDEX_PATH_KEY), preInstalledIndexDirs.get(modelIdx));
                 editor.putString(getString(R.string.IMAGE_PATH_KEY), preInstalledImagePaths.get(modelIdx));
                 editor.putString(getString(R.string.CPU_THREAD_NUM_KEY), preInstalledCPUThreadNums.get(modelIdx));
                 editor.putString(getString(R.string.CPU_POWER_MODE_KEY), preInstalledCPUPowerModes.get(modelIdx));
@@ -115,6 +124,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         cbEnableCustomSettings.setChecked(enableCustomSettings);
         etModelPath.setEnabled(enableCustomSettings);
         etLabelPath.setEnabled(enableCustomSettings);
+        etIndexDir.setEnabled(enableCustomSettings);
         etImagePath.setEnabled(enableCustomSettings);
         lpCPUThreadNum.setEnabled(enableCustomSettings);
         lpCPUPowerMode.setEnabled(enableCustomSettings);
@@ -125,6 +135,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                 getString(R.string.MODEL_PATH_DEFAULT));
         String labelPath = sharedPreferences.getString(getString(R.string.LABEL_PATH_KEY),
                 getString(R.string.LABEL_PATH_DEFAULT));
+        String indexDir = sharedPreferences.getString(getString(R.string.INDEX_PATH_KEY),
+                getString(R.string.INDEX_DIR_DEFAULT));
         String imagePath = sharedPreferences.getString(getString(R.string.IMAGE_PATH_KEY),
                 getString(R.string.IMAGE_PATH_DEFAULT));
         String cpuThreadNum = sharedPreferences.getString(getString(R.string.CPU_THREAD_NUM_KEY),
@@ -141,6 +153,8 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         etModelPath.setText(modelPath);
         etLabelPath.setSummary(labelPath);
         etLabelPath.setText(labelPath);
+        etIndexDir.setSummary(indexDir);
+        etIndexDir.setText(indexDir);
         etImagePath.setSummary(imagePath);
         etImagePath.setText(imagePath);
         lpCPUThreadNum.setValue(cpuThreadNum);

@@ -1,0 +1,15 @@
+# ninja log v5
+2	10631	681251960	CMakeFiles/Native.dir/Native.cc.o	26dcdc14546c290a
+1659	10641	681251960	CMakeFiles/Native.dir/Utils.cc.o	e34f6a57ea393a2e
+3631	12630	681251963	CMakeFiles/Native.dir/ObjectDetector.cc.o	7436180ae725ba97
+5233	14159	681251965	CMakeFiles/Native.dir/FeatureExtractor.cc.o	f7a7d0642513f25d
+6854	20445	681251971	CMakeFiles/Native.dir/Pipeline.cc.o	c833464f1b0afdce
+8741	20963	681251971	CMakeFiles/Native.dir/VectorSearch.cc.o	894ef0f2392e6f25
+20964	25111	681251976	D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/build/intermediates/cxx/RelWithDebInfo/1h3k5x6z/obj/arm64-v8a/libNative.so	6055ded30c554574
+6	6919	681310480	CMakeFiles/Native.dir/Native.cc.o	26dcdc14546c290a
+1063	6922	681310480	CMakeFiles/Native.dir/FeatureExtractor.cc.o	f7a7d0642513f25d
+2173	7705	681310481	CMakeFiles/Native.dir/Utils.cc.o	e34f6a57ea393a2e
+4403	10498	681310484	CMakeFiles/Native.dir/ObjectDetector.cc.o	7436180ae725ba97
+3271	11475	681310485	CMakeFiles/Native.dir/Pipeline.cc.o	c833464f1b0afdce
+5622	12909	681310486	CMakeFiles/Native.dir/VectorSearch.cc.o	894ef0f2392e6f25
+12909	15002	681310488	D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/build/intermediates/cxx/RelWithDebInfo/1h3k5x6z/obj/arm64-v8a/libNative.so	6055ded30c554574

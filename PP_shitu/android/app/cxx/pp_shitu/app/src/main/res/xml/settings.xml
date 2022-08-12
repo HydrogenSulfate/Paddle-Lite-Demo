@@ -22,6 +22,10 @@
             android:defaultValue="@string/LABEL_PATH_DEFAULT"
             android:title="Label Path" />
         <EditTextPreference
+            android:key="@string/INDEX_PATH_KEY"
+            android:defaultValue="@string/INDEX_DIR_DEFAULT"
+            android:title="Label Path" />
+        <EditTextPreference
             android:key="@string/IMAGE_PATH_KEY"
             android:defaultValue="@string/IMAGE_PATH_DEFAULT"
             android:title="Image Path" />

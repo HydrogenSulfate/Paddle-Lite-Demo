@@ -19,14 +19,14 @@
 #include <algorithm>
 #include <functional>
 #include <utility>
+#include <sys/stat.h>
+#include <unistd.h>
 
-
-void PrintResult(std::vector <ObjectResult> &det_result,
-                 std::shared_ptr <VectorSearch> vector_search,
+void PrintResult(std::vector<ObjectResult> &det_result,
+                 std::shared_ptr<VectorSearch> vector_search,
                  SearchResult &search_result)
 {
-//    LOGD("%s:\n", img_path.c_str());
-    for (int i = 0; i < det_result.size(); ++i)
+    for (int i = 0; i < std::min((int)det_result.size(), 1); ++i)
     {
         int t = i;
         LOGD("\tresult%d: bbox[%d, %d, %d, %d], score: %f, label: %s\n", i,
@@ -37,9 +37,9 @@ void PrintResult(std::vector <ObjectResult> &det_result,
     }
 }
 
-void VisualResult(cv::Mat &img, std::vector <ObjectResult> results)
+void VisualResult(cv::Mat &img, std::vector<ObjectResult> &results)
 { // NOLINT
-    for (int i = 0; i < results.size(); i++)
+    for (int i = 0; i < 1; i++)
     {
         int w = results[i].rect[2] - results[i].rect[0];
         int h = results[i].rect[3] - results[i].rect[1];
@@ -50,18 +50,19 @@ void VisualResult(cv::Mat &img, std::vector <ObjectResult> results)
 
 
 PipeLine::PipeLine(std::string det_model_path, std::string rec_model_path,
-                   std::string label_path, std::vector<int> det_input_shape,
+                   std::string label_path, std::string index_path, std::vector<int> det_input_shape,
                    std::vector<int> rec_input_shape, int cpu_num_threads,
-                   int warm_up, int repeats, int topk, std::string cpu_power)
+                   int warm_up, int repeats, int topk, bool add_gallery, std::string cpu_power)
 {
     det_model_path_ = det_model_path;
     rec_model_path_ = rec_model_path;
     label_path_ = label_path;
+    index_path_ = index_path;
     det_input_shape_ = det_input_shape;
     rec_input_shape_ = rec_input_shape;
     cpu_num_threads_ = cpu_num_threads;
-//    warm_up_ = warm_up;
-//    repeats_ = repeats;
+    add_gallery_flag = add_gallery;
+
     max_det_num_ = topk;
     cpu_pow_ = cpu_power;
     det_model_path_ =
@@ -78,95 +79,115 @@ PipeLine::PipeLine(std::string det_model_path, std::string rec_model_path,
     rec_ = std::make_shared<FeatureExtract>(rec_model_path_,
                                             rec_input_shape_, cpu_num_threads_,
                                             cpu_pow_);
-    searcher_ = std::make_shared<VectorSearch>("app/src/main/assets/index", 5, 0.5);
+    // create vector search
+    searcher_ = std::make_shared<VectorSearch>(label_path_, index_path_, 5, 0.5);
 }
 
-std::string PipeLine::run(std::vector <cv::Mat> &batch_imgs,      // NOLINT
-                          std::vector <ObjectResult> &det_result, // NOLINT
-                          int batch_size)
+std::string PipeLine::run(std::vector<cv::Mat> &batch_imgs,      // NOLINT
+                          std::vector<ObjectResult> &det_result, // NOLINT
+                          int batch_size, const std::string &label_name)
 {
     std::fill(times_.begin(), times_.end(), 0);
 
-//  DetPredictImage(batch_imgs, &det_result, batch_size, det_, max_det_num_); // det_result获取[l,d,r,u]
+//    if (!this->add_gallery_flag)
+//    {
     DetPredictImage(batch_imgs, &det_result, batch_size, det_, max_det_num_); // det_result获取[l,d,r,u]
-    LOGD("debugINFO: len of det_result %d, len of det_result[0] %d", (int) det_result.size(), (int) det_result[0].rect.size());
+//    }
     // add the whole image for recognition to improve recall
 
-    int item_start_idx = 0;
-    for (int i = 0; i < batch_imgs.size(); i++)
-    {
-        ObjectResult result_whole_img = {
-                {0, 0, batch_imgs[i].cols, batch_imgs[i].rows}, 0, 1.0};
-        det_result.push_back(result_whole_img); // 加入整图的坐标，提升召回率
-    }
-    LOGD("finished det");
+    ObjectResult result_whole_img = {{0, 0, batch_imgs[0].cols, batch_imgs[0].rows}, 0, 1.0};
+    det_result.push_back(result_whole_img); // 加入整图的坐标，提升召回率
     // get rec result
     for (int j = 0; j < det_result.size(); ++j)
     {
         double rec_time = 0.0;    // .rect:vector = {l, d, r, u}
+        vector<float> feature;
         int w = det_result[j].rect[2] - det_result[j].rect[0];
         int h = det_result[j].rect[3] - det_result[j].rect[1];
         cv::Rect rect(det_result[j].rect[0], det_result[j].rect[1], w, h);
         cv::Mat crop_img = batch_imgs[0](rect);
-        LOGD("finished crop_img");
         rec_->RunRecModel(crop_img, rec_time, feature);
-        features.insert(features.end(), feature.begin(), feature.end());
-//        times_[3] += rec_time[0];
-//        times_[4] += rec_time[1];
-//        times_[5] += rec_time[2];
+        if (this->add_gallery_flag)
+        {
+            this->searcher_->AddFeature(feature.data(), label_name);
+        }
+        else
+        {
+            features.insert(features.end(), feature.begin(), feature.end()); //每次插入一个512的向量
+        }
     }
-
-    // do vectore search
-    SearchResult search_result = searcher_->Search(features.data(), det_result.size());
-    for (int j = 0; j < det_result.size(); ++j)
+    if (this->add_gallery_flag)
     {
-        det_result[j].confidence = search_result.D[search_result.return_k * j];
+        det_result.clear();
+        features.clear();
+        indices.clear();
+        std::string res = std::to_string(times_[1] + times_[4]) + "\n";
+        res += "add feature finished";
+        return res;
     }
-    float rec_nms_threshold = 0.05;
-    NMSBoxes(det_result, searcher_->GetThreshold(), rec_nms_threshold,
+    // do vectore search
+    SearchResult search_result = searcher_->Search(features.data(), det_result.size()); // 一次搜索多个向量(展平在features里)，共det_result.size()个
+    LOGD("%d", search_result.D.size());
+//    for (int j = 0; j < det_result.size(); ++j)
+    for (int j = 0; j < 1; ++j) // 对于每个检测框，只把
+    {
+        det_result[j].confidence = search_result.return_k * j < search_result.D.size() ? search_result.D[search_result.return_k * j]: 0.0f;
+        for (int k = 0; k < this->max_index_num_; ++k)
+        {
+            std::size_t tidx = min<std::size_t>((std::size_t)(search_result.return_k * j + k), search_result.D.size() - 1);
+
+            std::string _class_name = searcher_->GetLabel(search_result.I[tidx]);
+            int _index = (int)(search_result.I[tidx]);
+            float _dist = search_result.D[tidx];
+            if (_dist > 1e5 || _dist < -1e5)
+            {
+                _dist = 0.0;
+            }
+
+            det_result[j].rec_result.push_back({_class_name, _index, _dist});
+        }
+    }
+//    sort(det_result.begin(), det_result.end(), [](const ObjectResult &a, const ObjectResult &b){
+//        if (a.rec_result.empty() and b.rec_result.empty())
+//        {
+//            return 0;
+//        }
+//        else if (a.rec_result.empty() and !b.rec_result.empty())
+//        {
+//            return 0;
+//        }
+//        else if (!a.rec_result.empty() and b.rec_result.empty())
+//        {
+//            return 1;
+//        }
+//        else
+//        {
+//            return (int)(a.rec_result[0].score > b.rec_result[0].score);
+//        }
+//    });
+    NMSBoxes(det_result, searcher_->GetThreshold(), this->rec_nms_thresold_,
              indices);
+    VisualResult(batch_imgs[0], det_result);
     LOGD("================== result summary =========================");
     PrintResult(det_result, searcher_, search_result);
 
-    batch_imgs.clear();
+    // results
+    std::string res;
+    res += std::to_string(times_[1] + times_[4]) + "\n";
+    for (int i = 0; i < 1; i++)
+    {
+        res.append("类别: " + det_result[i].rec_result[0].class_name + " 相似度: " + std::to_string((int)(det_result[i].rec_result[0].score * 100000) * 1.0 / 100000) + "\n");
+    }
     det_result.clear();
     features.clear();
-    feature.clear();
     indices.clear();
-    // rec nms
-//    auto nms_cost0 = GetCurrentUS();
-//    nms(&det_result, rec_nms_thresold_, true);
-//    auto nms_cost1 = GetCurrentUS();
-//    times_[6] += (nms_cost1 - nms_cost0) / 1000.f;
-
-    // results
-    std::string res = "";
-    res += std::to_string(times_[1] + times_[4]) + "\n";
-    for (int i = 0; i < det_result.size(); i++)
-    {
-        res = res + "class id: " + det_result[i].rec_result[0].class_name + "\n";
-    }
-//    LOGD("================== benchmark summary ======================");
-//    LOGD("ObjectDetect Preprocess:  %8.3f ms", times_[0]);
-//    LOGD("ObjectDetect inference:   %8.3f ms", times_[1]);
-//    LOGD("ObjectDetect Postprocess: %8.3f ms", times_[2]);
-//    LOGD("Recognise Preprocess:     %8.3f ms", times_[3]);
-//    LOGD("Recognise inference:      %8.3f ms", times_[4]);
-//    LOGD("Recognise Postprocess:    %8.3f ms", times_[5]);
-//    LOGD("nms process:              %8.3f ms", times_[6]);
-//    PrintResult(det_result);
-//    VisualResult(batch_imgs[0], det_result);
-
-//    features.clear();
-//    feature.clear();
-//    indices.clear();
     return res;
 }
 
-void PipeLine::DetPredictImage(const std::vector <cv::Mat> batch_imgs,
-                               std::vector <ObjectResult> *im_result,
+void PipeLine::DetPredictImage(const std::vector<cv::Mat> batch_imgs,
+                               std::vector<ObjectResult> *im_result,
                                const int batch_size_det,
-                               std::shared_ptr <ObjectDetector> det,
+                               std::shared_ptr<ObjectDetector> det,
                                const int max_det_num)
 {
     int steps = ceil(float(batch_imgs.size()) / batch_size_det);
@@ -178,7 +199,7 @@ void PipeLine::DetPredictImage(const std::vector <cv::Mat> batch_imgs,
             left_image_cnt = batch_size_det;
         }
         // Store all detected result
-        std::vector <ObjectResult> result;
+        std::vector<ObjectResult> result;
         std::vector<int> bbox_num;
         std::vector<double> det_times;
 
@@ -207,57 +228,15 @@ void PipeLine::DetPredictImage(const std::vector <cv::Mat> batch_imgs,
     }
 }
 
-//void PipeLine::DetPredictImage2(const std::vector <cv::Mat> &batch_imgs,
-//                                std::vector <ObjectResult> *im_result,
-//                                const int batch_size_det, const int max_det_num,
-//                                const bool run_benchmark, std::shared_ptr <ObjectDetector> det)
-//{
-//    int steps = ceil(batch_imgs.size() * 1.f / batch_size_det);
-//    for (int idx = 0; idx < steps; idx++)
-//    {
-//        int left_image_cnt = batch_imgs.size() - idx * batch_size_det;
-//        if (left_image_cnt > batch_size_det)
-//        {
-//            left_image_cnt = batch_size_det;
-//        }
-//        // Store all detected result
-//        std::vector <ObjectResult> result;
-//        std::vector<int> bbox_num;
-//        std::vector<double> det_times;
-//        bool is_rbox = false;
-//        det->Predict2(batch_imgs, 0, 1, &result, &bbox_num, &det_times);
-//        int item_start_idx = 0;
-//        for (int i = 0; i < left_image_cnt; i++)
-//        {
-//            cv::Mat im = batch_imgs[i];
-//            int detect_num = 0;
-//            for (int j = 0; j < min(bbox_num[i], max_det_num); j++)
-//            {
-//                ObjectResult item = result[item_start_idx + j];
-//                if (item.class_id == -1)
-//                {
-//                    continue;
-//                }
-//                detect_num += 1;
-//                im_result->push_back(item);
-//            }
-//            item_start_idx = item_start_idx + bbox_num[i];
-//        }
-//        times_[0] += det_times[0];
-//        times_[1] += det_times[1];
-//        times_[2] += det_times[2];
-//    }
-//}
-
 template<typename T>
 static inline bool SortScorePairDescend(const std::pair<float, T> &pair1, const std::pair<float, T> &pair2)
 {
     return pair1.first > pair2.first;
 }
 
-inline void GetMaxScoreIndex(const std::vector <ObjectResult> &det_result,
+inline void GetMaxScoreIndex(const std::vector<ObjectResult> &det_result,
                              const float threshold,
-                             std::vector <std::pair<float, int>> &score_index_vec)
+                             std::vector<std::pair<float, int>> &score_index_vec)
 {
     // Generate index score pairs.
     for (size_t i = 0; i < det_result.size(); ++i)
@@ -284,13 +263,13 @@ float RectOverlap(const ObjectResult &a, const ObjectResult &b)
     return Aab / (Aa + Ab - Aab);
 }
 
-void PipeLine::NMSBoxes(const std::vector <ObjectResult> det_result,
+void PipeLine::NMSBoxes(const std::vector<ObjectResult> det_result,
                         const float score_threshold, const float nms_threshold,
                         std::vector<int> &indices)
 {
     int a = 1;
     // Get top_k scores (with corresponding indices).
-    std::vector <std::pair<float, int>> score_index_vec;
+    std::vector<std::pair<float, int>> score_index_vec;
     GetMaxScoreIndex(det_result, score_threshold, score_index_vec);
 
     // Do nms
@@ -310,5 +289,22 @@ void PipeLine::NMSBoxes(const std::vector <ObjectResult> det_result,
     }
 }
 
+void PipeLine::set_add_gallery(const bool &flag)
+{
+    this->add_gallery_flag = flag;
+}
 
+void PipeLine::ClearFeature()
+{
+    this->searcher_->ClearFeature();
+}
 
+void PipeLine::SaveIndex(const string &save_file_name)
+{
+    this->searcher_->SaveIndex(save_file_name);
+}
+
+bool PipeLine::LoadIndex(const string &save_file_name)
+{
+    return this->searcher_->LoadFromSaveFileName(save_file_name);
+}
