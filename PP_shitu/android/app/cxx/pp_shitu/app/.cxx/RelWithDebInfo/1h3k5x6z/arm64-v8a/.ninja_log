@@ -13,3 +13,5 @@
 3271	11475	681310485	CMakeFiles/Native.dir/Pipeline.cc.o	c833464f1b0afdce
 5622	12909	681310486	CMakeFiles/Native.dir/VectorSearch.cc.o	894ef0f2392e6f25
 12909	15002	681310488	D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/build/intermediates/cxx/RelWithDebInfo/1h3k5x6z/obj/arm64-v8a/libNative.so	6055ded30c554574
+6	7681	681995973	CMakeFiles/Native.dir/Pipeline.cc.o	c833464f1b0afdce
+7681	11715	681995977	D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/build/intermediates/cxx/RelWithDebInfo/1h3k5x6z/obj/arm64-v8a/libNative.so	6055ded30c554574

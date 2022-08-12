@@ -1,9 +1,5 @@
 ninja: Entering directory `D:\python_proj\Paddle-Lite-Demo\PP_shitu\android\app\cxx\pp_shitu\app\.cxx\RelWithDebInfo\1h3k5x6z\arm64-v8a'
-[1/7] Building CXX object CMakeFiles/Native.dir/Native.cc.o
-[2/7] Building CXX object CMakeFiles/Native.dir/FeatureExtractor.cc.o
-[3/7] Building CXX object CMakeFiles/Native.dir/Utils.cc.o
-[4/7] Building CXX object CMakeFiles/Native.dir/ObjectDetector.cc.o
-[5/7] Building CXX object CMakeFiles/Native.dir/Pipeline.cc.o
+[1/2] Building CXX object CMakeFiles/Native.dir/Pipeline.cc.o
 D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/Pipeline.cc:130:16: warning: format specifies type 'int' but the argument has type 'std::__ndk1::vector<float, std::__ndk1::allocator<float> >::size_type' (aka 'unsigned long') [-Wformat]
     LOGD("%d", search_result.D.size());
           ~~   ^~~~~~~~~~~~~~~~~~~~~~
@@ -12,5 +8,4 @@ D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/c
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
                                                               ^~~~~~~~~~~
 1 warning generated.
-[6/7] Building CXX object CMakeFiles/Native.dir/VectorSearch.cc.o
-[7/7] Linking CXX shared library D:\python_proj\Paddle-Lite-Demo\PP_shitu\android\app\cxx\pp_shitu\app\build\intermediates\cxx\RelWithDebInfo\1h3k5x6z\obj\arm64-v8a\libNative.so
+[2/2] Linking CXX shared library D:\python_proj\Paddle-Lite-Demo\PP_shitu\android\app\cxx\pp_shitu\app\build\intermediates\cxx\RelWithDebInfo\1h3k5x6z\obj\arm64-v8a\libNative.so
