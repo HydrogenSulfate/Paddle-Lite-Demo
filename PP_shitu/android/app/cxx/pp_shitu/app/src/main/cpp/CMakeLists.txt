@@ -93,11 +93,3 @@ target_link_libraries(
   ${log-lib}
   faiss
   )
-
-#target_link_libraries(
-#  faiss
-#  INTERFACE
-#  D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/jniLibs/arm64-v8a/libfaiss.a
-#  ${log-lib}
-#  )
-
