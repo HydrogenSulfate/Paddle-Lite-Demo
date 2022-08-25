@@ -1,38 +1,37 @@
 package com.baidu.paddle.lite.demo.pp_shitu;
 
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import com.baidu.paddle.lite.demo.common.AppCompatPreferenceActivity;
-import com.baidu.paddle.lite.demo.common.Utils;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     ListPreference lpChoosePreInstalledModel = null;
-    CheckBoxPreference cbEnableCustomSettings = null;
-    EditTextPreference etModelPath = null;
-    EditTextPreference etLabelPath = null;
-    EditTextPreference etImagePath = null;
-    ListPreference lpCPUThreadNum = null;
-    ListPreference lpCPUPowerMode = null;
-    ListPreference lpInputTopK = null;
-    EditTextPreference etDetInputShape = null;
-    EditTextPreference etRecInputShape = null;
+    ListPreference lpLabelPath = null;
+    ListPreference lpIndexPath = null;
+
 
     List<String> preInstalledModelPaths = null;
     List<String> preInstalledLabelPaths = null;
+    List<String> preInstalledIndexDirs = null;
     List<String> preInstalledImagePaths = null;
-    List<String> preInstalledCPUThreadNums = null;
-    List<String> preInstalledCPUPowerModes = null;
-    List<String> preInstalledDetInputShapes = null;
-    List<String> preInstalledRecInputShapes = null;
-    List<String> preInstalledInputColorFormats = null;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,25 +42,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             supportActionBar.setDisplayHomeAsUpEnabled(true);
         }
 
+
         // Initialized pre-installed models
-        preInstalledModelPaths = new ArrayList<String>();
-        preInstalledLabelPaths = new ArrayList<String>();
-        preInstalledImagePaths = new ArrayList<String>();
-        preInstalledDetInputShapes = new ArrayList<String>();
-        preInstalledRecInputShapes = new ArrayList<String>();
-        preInstalledCPUThreadNums = new ArrayList<String>();
-        preInstalledCPUPowerModes = new ArrayList<String>();
-        preInstalledInputColorFormats = new ArrayList<String>();
+        preInstalledModelPaths = new ArrayList<>();
+        preInstalledLabelPaths = new ArrayList<>();
+        preInstalledIndexDirs = new ArrayList<>();
+        preInstalledImagePaths = new ArrayList<>();
 
         // Add mobilenet_v1_for_cpu
         preInstalledModelPaths.add(getString(R.string.MODEL_PATH_DEFAULT));
         preInstalledLabelPaths.add(getString(R.string.LABEL_PATH_DEFAULT));
+        preInstalledIndexDirs.add(getString(R.string.INDEX_PATH_DEFAULT));
         preInstalledImagePaths.add(getString(R.string.IMAGE_PATH_DEFAULT));
-        preInstalledCPUThreadNums.add(getString(R.string.CPU_THREAD_NUM_DEFAULT));
-        preInstalledCPUPowerModes.add(getString(R.string.CPU_POWER_MODE_DEFAULT));
-        preInstalledInputColorFormats.add(getString(R.string.INPUT_TOPK_DEFAULT));
-        preInstalledDetInputShapes.add(getString(R.string.DET_INPUT_SHAPE_DEFAULT));
-        preInstalledRecInputShapes.add(getString(R.string.REC_INPUT_SHAPE_DEFAULT));
 
         // Setup UI components
         lpChoosePreInstalledModel =
@@ -73,86 +65,77 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         }
         lpChoosePreInstalledModel.setEntries(preInstalledModelNames);
         lpChoosePreInstalledModel.setEntryValues(preInstalledModelPaths.toArray(new String[preInstalledModelPaths.size()]));
-        lpCPUThreadNum =
-                (ListPreference) findPreference(getString(R.string.CPU_THREAD_NUM_KEY));
-        lpCPUPowerMode =
-                (ListPreference) findPreference(getString(R.string.CPU_POWER_MODE_KEY));
-        cbEnableCustomSettings =
-                (CheckBoxPreference) findPreference(getString(R.string.ENABLE_CUSTOM_SETTINGS_KEY));
-        etModelPath = (EditTextPreference) findPreference(getString(R.string.MODEL_PATH_KEY));
-        etModelPath.setTitle("Model Path (SDCard: " + Utils.getSDCardDirectory() + ")");
-        etLabelPath = (EditTextPreference) findPreference(getString(R.string.LABEL_PATH_KEY));
-        etImagePath = (EditTextPreference) findPreference(getString(R.string.IMAGE_PATH_KEY));
-        lpInputTopK =
-                (ListPreference) findPreference(getString(R.string.INPUT_TOPK_KEY));
-        etDetInputShape = (EditTextPreference) findPreference(getString(R.string.DET_INPUT_SHAPE_KEY));
-        etRecInputShape = (EditTextPreference) findPreference(getString(R.string.REC_INPUT_SHAPE_KEY));
+
+        lpLabelPath = (ListPreference) findPreference(getString(R.string.LABEL_PATH_KEY));
+        String label_dir = getExternalFilesDir(null) + "/index/";
+        File dir = new File(label_dir);
+        String[] files = dir.list();
+        ArrayList<String> files_ = new ArrayList<>();
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            if (!files[i].endsWith(".txt")) {
+                continue;
+            }
+            files_.add("index/" + files[i]);
+            files[i] = label_dir + files[i];
+        }
+        lpLabelPath.setEntries(files_.toArray(new String[files_.size()]));
+        lpLabelPath.setEntryValues(files_.toArray(new String[files_.size()]));
+
+        lpIndexPath = (ListPreference) findPreference(getString(R.string.INDEX_PATH_KEY));
+        String index_dir = getExternalFilesDir(null) + "/index/";
+        dir = new File(index_dir);
+        files = dir.list();
+        files_ = new ArrayList<>();
+        for (int i = 0; i < Objects.requireNonNull(files).length; i++) {
+            if (!files[i].endsWith(".index")) {
+                continue;
+            }
+            files_.add("index/" + files[i]);
+            files[i] = index_dir + files[i];
+        }
+        lpIndexPath.setEntries(files_.toArray(new String[files_.size()]));
+        lpIndexPath.setEntryValues(files_.toArray(new String[files_.size()]));
+
+//        ListView v = getListView();
+//        Button show_label = new Button(SettingsActivity.this);
+//        v.addFooterView(show_label);
+//        show_label.setText("查看当前标签库");
+//        show_label.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                String labelPath = getPreferenceScreen().getSharedPreferences().getString(getString(R.string.LABEL_PATH_KEY),
+//                        getString(R.string.LABEL_PATH_DEFAULT));
+//                String fullpath = getExternalFilesDir(null) + "/" + labelPath;
+//                String labelfile_content = getFileContent(fullpath);
+//                AlertDialog alertDialog = new AlertDialog.Builder(SettingsActivity.this)
+//                    //标题
+//                    .setTitle(labelPath)
+//                    //内容
+//                    .setMessage(labelfile_content)
+//                    //图标
+//                    .setIcon(R.mipmap.ic_launcher)
+//                    .setPositiveButton("确认", null)
+//                    .create();
+//                alertDialog.show();
+//            }
+//        });
     }
 
     private void reloadPreferenceAndUpdateUI() {
         SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-        boolean enableCustomSettings =
-                sharedPreferences.getBoolean(getString(R.string.ENABLE_CUSTOM_SETTINGS_KEY), false);
-        String modelPath = sharedPreferences.getString(getString(R.string.CHOOSE_PRE_INSTALLED_MODEL_KEY),
-                getString(R.string.MODEL_PATH_DEFAULT));
+        String modelPath = "models";
         int modelIdx = lpChoosePreInstalledModel.findIndexOfValue(modelPath);
         if (modelIdx >= 0 && modelIdx < preInstalledModelPaths.size()) {
-            if (!enableCustomSettings) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(getString(R.string.MODEL_PATH_KEY), preInstalledModelPaths.get(modelIdx));
-                editor.putString(getString(R.string.LABEL_PATH_KEY), preInstalledLabelPaths.get(modelIdx));
-                editor.putString(getString(R.string.IMAGE_PATH_KEY), preInstalledImagePaths.get(modelIdx));
-                editor.putString(getString(R.string.CPU_THREAD_NUM_KEY), preInstalledCPUThreadNums.get(modelIdx));
-                editor.putString(getString(R.string.CPU_POWER_MODE_KEY), preInstalledCPUPowerModes.get(modelIdx));
-                editor.putString(getString(R.string.INPUT_TOPK_KEY),
-                        preInstalledInputColorFormats.get(modelIdx));
-                editor.putString(getString(R.string.DET_INPUT_SHAPE_KEY), preInstalledDetInputShapes.get(modelIdx));
-                editor.putString(getString(R.string.REC_INPUT_SHAPE_KEY), preInstalledRecInputShapes.get(modelIdx));
-                editor.commit();
-            }
             lpChoosePreInstalledModel.setSummary(modelPath);
         }
-        cbEnableCustomSettings.setChecked(enableCustomSettings);
-        etModelPath.setEnabled(enableCustomSettings);
-        etLabelPath.setEnabled(enableCustomSettings);
-        etImagePath.setEnabled(enableCustomSettings);
-        lpCPUThreadNum.setEnabled(enableCustomSettings);
-        lpCPUPowerMode.setEnabled(enableCustomSettings);
-        lpInputTopK.setEnabled(enableCustomSettings);
-        etDetInputShape.setEnabled(enableCustomSettings);
-        etRecInputShape.setEnabled(enableCustomSettings);
-        modelPath = sharedPreferences.getString(getString(R.string.MODEL_PATH_KEY),
-                getString(R.string.MODEL_PATH_DEFAULT));
+
         String labelPath = sharedPreferences.getString(getString(R.string.LABEL_PATH_KEY),
                 getString(R.string.LABEL_PATH_DEFAULT));
-        String imagePath = sharedPreferences.getString(getString(R.string.IMAGE_PATH_KEY),
-                getString(R.string.IMAGE_PATH_DEFAULT));
-        String cpuThreadNum = sharedPreferences.getString(getString(R.string.CPU_THREAD_NUM_KEY),
-                getString(R.string.CPU_THREAD_NUM_DEFAULT));
-        String cpuPowerMode = sharedPreferences.getString(getString(R.string.CPU_POWER_MODE_KEY),
-                getString(R.string.CPU_POWER_MODE_DEFAULT));
-        String inputTopK = sharedPreferences.getString(getString(R.string.INPUT_TOPK_KEY),
-                getString(R.string.INPUT_TOPK_DEFAULT));
-        String detinputShape = sharedPreferences.getString(getString(R.string.DET_INPUT_SHAPE_KEY),
-                getString(R.string.DET_INPUT_SHAPE_DEFAULT));
-        String recinputShape = sharedPreferences.getString(getString(R.string.REC_INPUT_SHAPE_KEY),
-                getString(R.string.REC_INPUT_SHAPE_DEFAULT));
-        etModelPath.setSummary(modelPath);
-        etModelPath.setText(modelPath);
-        etLabelPath.setSummary(labelPath);
-        etLabelPath.setText(labelPath);
-        etImagePath.setSummary(imagePath);
-        etImagePath.setText(imagePath);
-        lpCPUThreadNum.setValue(cpuThreadNum);
-        lpCPUThreadNum.setSummary(cpuThreadNum);
-        lpCPUPowerMode.setValue(cpuPowerMode);
-        lpCPUPowerMode.setSummary(cpuPowerMode);
-        lpInputTopK.setValue(inputTopK);
-        lpInputTopK.setSummary(inputTopK);
-        etDetInputShape.setSummary(detinputShape);
-        etDetInputShape.setText(detinputShape);
-        etRecInputShape.setSummary(recinputShape);
-        etRecInputShape.setText(recinputShape);
+        String indexPath = sharedPreferences.getString(getString(R.string.INDEX_PATH_KEY),
+                getString(R.string.INDEX_PATH_DEFAULT));
+
+        lpLabelPath.setSummary(labelPath);
+        lpIndexPath.setSummary(indexPath);
     }
 
     @Override
@@ -170,11 +153,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(getString(R.string.CHOOSE_PRE_INSTALLED_MODEL_KEY))) {
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean(getString(R.string.ENABLE_CUSTOM_SETTINGS_KEY), false);
-            editor.commit();
-        }
         reloadPreferenceAndUpdateUI();
     }
 }

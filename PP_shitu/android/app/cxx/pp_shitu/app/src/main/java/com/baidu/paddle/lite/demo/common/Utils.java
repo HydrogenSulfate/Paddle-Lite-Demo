@@ -41,6 +41,10 @@ public class Utils {
         }
         InputStream is = null;
         OutputStream os = null;
+        if (new File(dstPath).exists())
+        {
+            return ;
+        }
         try {
             is = new BufferedInputStream(appCtx.getAssets().open(srcPath));
             os = new BufferedOutputStream(new FileOutputStream(new File(dstPath)));

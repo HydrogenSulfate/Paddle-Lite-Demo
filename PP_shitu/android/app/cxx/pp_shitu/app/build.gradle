@@ -3,11 +3,11 @@ import java.security.MessageDigest
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 30
     defaultConfig {
         applicationId "com.baidu.paddle.lite.demo.pp_shitu"
         minSdkVersion 15
-        targetSdkVersion 28
+        targetSdkVersion 30
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -28,7 +28,7 @@ android {
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.10.2"
+            version "3.18.1"
         }
     }
 }
@@ -42,7 +42,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
-
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
 def archives = [
         [
                 'src' : 'https://paddlelite-demo.bj.bcebos.com/libs/android/paddle_lite_libs_v2_10_gpu.tar.gz',

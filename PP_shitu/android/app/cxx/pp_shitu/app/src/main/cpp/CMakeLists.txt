@@ -2,6 +2,7 @@
 # documentation: https://d.android.com/studio/projects/add-native-code.html
 
 # Sets the minimum version of CMake required to build the native library.
+#project(ShituDemo)
 
 cmake_minimum_required(VERSION 3.4.1)
 
@@ -18,8 +19,13 @@ find_package(OpenCV REQUIRED)
 message(STATUS "OpenCV libraries: ${OpenCV_LIBS}")
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+#set(PaddleLite_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../PaddleLite")
+
+include_directories(D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/include/faiss)
+set(target faiss)
+
 set(CMAKE_CXX_FLAGS
-    "${CMAKE_CXX_FLAGS} -ffast-math -Ofast -Os -DNDEBUG -fno-exceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables"
+    "${CMAKE_CXX_FLAGS} -ffast-math -Ofast -Os -DNDEBUG -fexceptions -fomit-frame-pointer -fno-asynchronous-unwind-tables -fno-unwind-tables"
 )
 set(CMAKE_CXX_FLAGS
     "${CMAKE_CXX_FLAGS} -fvisibility=hidden -fvisibility-inlines-hidden -fdata-sections -ffunction-sections"
@@ -33,7 +39,7 @@ add_library(
   # Sets the library as a shared library.
   SHARED
   # Provides a relative path to your source file(s).
-  Native.cc Pipeline.cc Utils.cc ObjectDetector.cc Recognition.cc)
+  Native.cc Pipeline.cc Utils.cc ObjectDetector.cc FeatureExtractor.cc VectorSearch.cc)
 
 find_library(
   # Sets the name of the path variable.
@@ -49,6 +55,12 @@ add_library(
   # Provides a relative path to your source file(s).
   IMPORTED)
 
+add_library(
+  # Sets the name of the library.
+  faiss
+  STATIC
+  IMPORTED)
+
 set_target_properties(
   # Specifies the target library.
   paddle_light_api_shared
@@ -57,6 +69,13 @@ set_target_properties(
     IMPORTED_LOCATION
     ${PaddleLite_DIR}/cxx/libs/${ANDROID_ABI}/libpaddle_light_api_shared.so
     # Provides the path to the library you want to import.
+)
+
+set_target_properties(
+    faiss
+    PROPERTIES
+    IMPORTED_LOCATION
+    D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/jniLibs/arm64-v8a/libfaiss.a
 )
 
 # Specifies libraries CMake should link to your target library. You can link
@@ -72,4 +91,13 @@ target_link_libraries(
   GLESv2
   EGL
   ${log-lib}
+  faiss
   )
+
+#target_link_libraries(
+#  faiss
+#  INTERFACE
+#  D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/jniLibs/arm64-v8a/libfaiss.a
+#  ${log-lib}
+#  )
+

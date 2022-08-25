@@ -18,130 +18,143 @@
 #include <string>
 #include <vector>
 
-inline std::string jstring_to_cpp_string(JNIEnv *env, jstring jstr) {
-  // In java, a unicode char will be encoded using 2 bytes (utf16).
-  // so jstring will contain characters utf16. std::string in c++ is
-  // essentially a string of bytes, not characters, so if we want to
-  // pass jstring from JNI to c++, we have convert utf16 to bytes.
-  if (!jstr) {
-    return "";
-  }
-  const jclass stringClass = env->GetObjectClass(jstr);
-  const jmethodID getBytes =
-      env->GetMethodID(stringClass, "getBytes", "(Ljava/lang/String;)[B");
-  const jbyteArray stringJbytes = (jbyteArray)env->CallObjectMethod(
-      jstr, getBytes, env->NewStringUTF("UTF-8"));
+inline std::string jstring_to_cpp_string(JNIEnv *env, jstring jstr)
+{
+    // In java, a unicode char will be encoded using 2 bytes (utf16).
+    // so jstring will contain characters utf16. std::string in c++ is
+    // essentially a string of bytes, not characters, so if we want to
+    // pass jstring from JNI to c++, we have convert utf16 to bytes.
+    if (!jstr)
+    {
+        return "";
+    }
+    const jclass stringClass = env->GetObjectClass(jstr);
+    const jmethodID getBytes =
+            env->GetMethodID(stringClass, "getBytes", "(Ljava/lang/String;)[B");
+    const jbyteArray stringJbytes = (jbyteArray) env->CallObjectMethod(
+            jstr, getBytes, env->NewStringUTF("UTF-8"));
 
-  size_t length = (size_t)env->GetArrayLength(stringJbytes);
-  jbyte *pBytes = env->GetByteArrayElements(stringJbytes, NULL);
+    size_t length = (size_t) env->GetArrayLength(stringJbytes);
+    jbyte *pBytes = env->GetByteArrayElements(stringJbytes, NULL);
 
-  std::string ret = std::string(reinterpret_cast<char *>(pBytes), length);
-  env->ReleaseByteArrayElements(stringJbytes, pBytes, JNI_ABORT);
+    std::string ret = std::string(reinterpret_cast<char *>(pBytes), length);
+    env->ReleaseByteArrayElements(stringJbytes, pBytes, JNI_ABORT);
 
-  env->DeleteLocalRef(stringJbytes);
-  env->DeleteLocalRef(stringClass);
-  return ret;
+    env->DeleteLocalRef(stringJbytes);
+    env->DeleteLocalRef(stringClass);
+    return ret;
 }
 
-inline jstring cpp_string_to_jstring(JNIEnv *env, std::string str) {
-  auto *data = str.c_str();
-  jclass strClass = env->FindClass("java/lang/String");
-  jmethodID strClassInitMethodID =
-      env->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
+inline jstring cpp_string_to_jstring(JNIEnv *env, std::string str)
+{
+    auto *data = str.c_str();
+    jclass strClass = env->FindClass("java/lang/String");
+    jmethodID strClassInitMethodID =
+            env->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
 
-  jbyteArray bytes = env->NewByteArray(strlen(data));
-  env->SetByteArrayRegion(bytes, 0, strlen(data),
-                          reinterpret_cast<const jbyte *>(data));
+    jbyteArray bytes = env->NewByteArray(strlen(data));
+    env->SetByteArrayRegion(bytes, 0, strlen(data),
+                            reinterpret_cast<const jbyte *>(data));
 
-  jstring encoding = env->NewStringUTF("UTF-8");
-  jstring res = (jstring)(
-      env->NewObject(strClass, strClassInitMethodID, bytes, encoding));
+    jstring encoding = env->NewStringUTF("UTF-8");
+    jstring res = (jstring) (
+            env->NewObject(strClass, strClassInitMethodID, bytes, encoding));
 
-  env->DeleteLocalRef(strClass);
-  env->DeleteLocalRef(encoding);
-  env->DeleteLocalRef(bytes);
+    env->DeleteLocalRef(strClass);
+    env->DeleteLocalRef(encoding);
+    env->DeleteLocalRef(bytes);
 
-  return res;
+    return res;
 }
 
-inline jobject cpp_string_to_jobect(JNIEnv *env, std::string str) {
-  auto *data = str.c_str();
-  jclass strClass = env->FindClass("java/lang/String");
-  jmethodID strClassInitMethodID =
-      env->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
+inline jobject cpp_string_to_jobect(JNIEnv *env, std::string str)
+{
+    auto *data = str.c_str();
+    jclass strClass = env->FindClass("java/lang/String");
+    jmethodID strClassInitMethodID =
+            env->GetMethodID(strClass, "<init>", "([BLjava/lang/String;)V");
 
-  jbyteArray bytes = env->NewByteArray(strlen(data));
-  env->SetByteArrayRegion(bytes, 0, strlen(data),
-                          reinterpret_cast<const jbyte *>(data));
+    jbyteArray bytes = env->NewByteArray(strlen(data));
+    env->SetByteArrayRegion(bytes, 0, strlen(data),
+                            reinterpret_cast<const jbyte *>(data));
 
-  jstring encoding = env->NewStringUTF("UTF-8");
-  jobject res = env->NewObject(strClass, strClassInitMethodID, bytes, encoding);
+    jstring encoding = env->NewStringUTF("UTF-8");
+    jobject res = env->NewObject(strClass, strClassInitMethodID, bytes, encoding);
 
-  env->DeleteLocalRef(strClass);
-  env->DeleteLocalRef(encoding);
-  env->DeleteLocalRef(bytes);
+    env->DeleteLocalRef(strClass);
+    env->DeleteLocalRef(encoding);
+    env->DeleteLocalRef(bytes);
 
-  return res;
+    return res;
 }
 
 inline jfloatArray cpp_array_to_jfloatarray(JNIEnv *env, const float *buf,
-                                            int64_t len) {
-  jfloatArray result = env->NewFloatArray(len);
-  env->SetFloatArrayRegion(result, 0, len, buf);
-  return result;
+                                            int64_t len)
+{
+    jfloatArray result = env->NewFloatArray(len);
+    env->SetFloatArrayRegion(result, 0, len, buf);
+    return result;
 }
 
 inline jintArray cpp_array_to_jintarray(JNIEnv *env, const int *buf,
-                                        int64_t len) {
-  jintArray result = env->NewIntArray(len);
-  env->SetIntArrayRegion(result, 0, len, buf);
-  return result;
+                                        int64_t len)
+{
+    jintArray result = env->NewIntArray(len);
+    env->SetIntArrayRegion(result, 0, len, buf);
+    return result;
 }
 
 inline jbyteArray cpp_array_to_jbytearray(JNIEnv *env, const int8_t *buf,
-                                          int64_t len) {
-  jbyteArray result = env->NewByteArray(len);
-  env->SetByteArrayRegion(result, 0, len, buf);
-  return result;
+                                          int64_t len)
+{
+    jbyteArray result = env->NewByteArray(len);
+    env->SetByteArrayRegion(result, 0, len, buf);
+    return result;
 }
 
 inline jobjectArray
-cpp_array_to_jobjectarray(JNIEnv *env, const std::string *buf, int64_t len) {
-  jclass jclz = env->FindClass("java/lang/String");
-  jobjectArray result = env->NewObjectArray(len, jclz, NULL);
-  for (int i = 0; i < len; i++) {
-    jobject job = cpp_string_to_jobect(env, buf[i]);
-    env->SetObjectArrayElement(result, i, job);
-  }
-  return result;
+cpp_array_to_jobjectarray(JNIEnv *env, const std::string *buf, int64_t len)
+{
+    jclass jclz = env->FindClass("java/lang/String");
+    jobjectArray result = env->NewObjectArray(len, jclz, NULL);
+    for (int i = 0; i < len; i++)
+    {
+        jobject job = cpp_string_to_jobect(env, buf[i]);
+        env->SetObjectArrayElement(result, i, job);
+    }
+    return result;
 }
 
 inline jlongArray int64_vector_to_jlongarray(JNIEnv *env,
-                                             const std::vector<int64_t> &vec) {
-  jlongArray result = env->NewLongArray(vec.size());
-  jlong *buf = new jlong[vec.size()];
-  for (size_t i = 0; i < vec.size(); ++i) {
-    buf[i] = (jlong)vec[i];
-  }
-  env->SetLongArrayRegion(result, 0, vec.size(), buf);
-  delete[] buf;
-  return result;
+                                             const std::vector<int64_t> &vec)
+{
+    jlongArray result = env->NewLongArray(vec.size());
+    jlong *buf = new jlong[vec.size()];
+    for (size_t i = 0; i < vec.size(); ++i)
+    {
+        buf[i] = (jlong) vec[i];
+    }
+    env->SetLongArrayRegion(result, 0, vec.size(), buf);
+    delete[] buf;
+    return result;
 }
 
 inline std::vector<int64_t> jlongarray_to_int64_vector(JNIEnv *env,
-                                                       jlongArray data) {
-  int data_size = env->GetArrayLength(data);
-  jlong *data_ptr = env->GetLongArrayElements(data, nullptr);
-  std::vector<int64_t> data_vec(data_ptr, data_ptr + data_size);
-  env->ReleaseLongArrayElements(data, data_ptr, 0);
-  return data_vec;
+                                                       jlongArray data)
+{
+    int data_size = env->GetArrayLength(data);
+    jlong *data_ptr = env->GetLongArrayElements(data, nullptr);
+    std::vector<int64_t> data_vec(data_ptr, data_ptr + data_size);
+    env->ReleaseLongArrayElements(data, data_ptr, 0);
+    return data_vec;
 }
 
 inline std::vector<float> jfloatarray_to_float_vector(JNIEnv *env,
-                                                      jfloatArray data) {
-  int data_size = env->GetArrayLength(data);
-  jfloat *data_ptr = env->GetFloatArrayElements(data, nullptr);
-  std::vector<float> data_vec(data_ptr, data_ptr + data_size);
-  env->ReleaseFloatArrayElements(data, data_ptr, 0);
-  return data_vec;
+                                                      jfloatArray data)
+{
+    int data_size = env->GetArrayLength(data);
+    jfloat *data_ptr = env->GetFloatArrayElements(data, nullptr);
+    std::vector<float> data_vec(data_ptr, data_ptr + data_size);
+    env->ReleaseFloatArrayElements(data, data_ptr, 0);
+    return data_vec;
 }
