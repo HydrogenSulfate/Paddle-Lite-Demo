@@ -21,7 +21,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 
 #set(PaddleLite_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../PaddleLite")
 
-include_directories(D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/cpp/include/faiss)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../PaddleLite/src/main/cpp/include/faiss)
 set(target faiss)
 
 set(CMAKE_CXX_FLAGS
@@ -71,11 +71,21 @@ set_target_properties(
     # Provides the path to the library you want to import.
 )
 
+# if there libfaiss.a not exist, will download it automatically
+IF(NOT ${CMAKE_CURRENT_SOURCE_DIR}/../../../src/main/jniLibs/arm64-v8a/libfaiss.a)
+    message(STATUS "Downloading ${OCI_LIB_ZIP_NAME} to ${CMAKE_CURRENT_SOURCE_DIR}/../../../src/main/jniLibs/arm64-v8a/")
+    FILE(DOWNLOAD https://paddle-imagenet-models-name.bj.bcebos.com/demos/lib/libfaiss.a
+            ${CMAKE_CURRENT_SOURCE_DIR}/../../../src/main/jniLibs/arm64-v8a/libfaiss.a
+            TIMEOUT ${DOWNLOAD_OCI_LIB_TIMEOUT}
+            STATUS ERR
+            SHOW_PROGRESS)
+ENDIF()
+
 set_target_properties(
     faiss
     PROPERTIES
     IMPORTED_LOCATION
-    D:/python_proj/Paddle-Lite-Demo/PP_shitu/android/app/cxx/pp_shitu/app/src/main/jniLibs/arm64-v8a/libfaiss.a
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../../src/main/jniLibs/arm64-v8a/libfaiss.a
 )
 
 # Specifies libraries CMake should link to your target library. You can link
@@ -92,4 +102,4 @@ target_link_libraries(
   EGL
   ${log-lib}
   faiss
-  )
+)
