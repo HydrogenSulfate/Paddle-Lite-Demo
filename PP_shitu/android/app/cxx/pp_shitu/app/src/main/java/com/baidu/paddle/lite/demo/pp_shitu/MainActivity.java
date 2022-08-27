@@ -47,6 +47,18 @@ import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
+//    public static final int OPEN_QUERY_PHOTO_REQUEST_CODE = 0;
+//    public static final int TAKE_QUERY_PHOTO_REQUEST_CODE = 1;
+//    public static final int OPEN_GALLERY_PHOTO_REQUEST_CODE = 2;
+//    public static final int TAKE_GALLERY_PHOTO_REQUEST_CODE = 3;
+//    public static final int CLEAR_FEATURE_REQUEST_CODE = 4;
+//    public static final int REQUEST_LOAD_MODEL = 5;
+//    public static final int REQUEST_RUN_MODEL = 6;
+//    public static final int RESPONSE_LOAD_MODEL_SUCCESSED = 7;
+//    public static final int RESPONSE_LOAD_MODEL_FAILED = 8;
+//    public static final int RESPONSE_RUN_MODEL_SUCCESSED = 9;
+//    public static final int RESPONSE_RUN_MODEL_FAILED = 10;
+
     public static final int OPEN_QUERY_PHOTO_REQUEST_CODE = 0;
     public static final int TAKE_QUERY_PHOTO_REQUEST_CODE = 1;
     public static final int OPEN_GALLERY_PHOTO_REQUEST_CODE = 4;
@@ -626,9 +638,9 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("QueryPermissionsNeeded")
     private void takeQueryPhoto() {
         Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(takePhotoIntent, TAKE_QUERY_PHOTO_REQUEST_CODE);
-        }
+        // if (takePhotoIntent.resolveActivity(getPackageManager()) != null) {
+        startActivityForResult(takePhotoIntent, TAKE_QUERY_PHOTO_REQUEST_CODE);
+        // }
     }
 
     private void openGalleryPhoto() {
@@ -642,9 +654,9 @@ public class MainActivity extends AppCompatActivity {
     private void takeGalleryPhoto() {
         // 直接拍一张图片到库中---主逻辑代码
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intent, TAKE_GALLERY_PHOTO_REQUEST_CODE);
-        }
+        // if (intent.resolveActivity(getPackageManager()) != null) {
+        startActivityForResult(intent, TAKE_GALLERY_PHOTO_REQUEST_CODE);
+        // }
     }
 
     private void clearIndex() {
